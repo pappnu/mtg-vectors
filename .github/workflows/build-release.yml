@@ -2,6 +2,11 @@ name: Build Release
 
 on:
   workflow_dispatch:
+    inputs:
+      allow_skipping_build:
+        description: "Allow skipping build"
+        type: boolean
+        default: false
   schedule:
     # Scheduled Daily (Midnight)
     - cron: "0 0 * * *"
@@ -53,8 +58,8 @@ jobs:
           git add .
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git commit -m "deps(build): Process daily updates." || { echo "No changes to commit, skipping build process."; echo "SKIP_BUILD=true" >> $GITHUB_ENV; exit 0; }
-          git push || { echo "No changes to push, skipping build process.";  echo "SKIP_BUILD=true" >> $GITHUB_ENV; exit 0; }
+          git commit -m "deps(build): Process daily updates." || { echo "No changes to commit, skipping build process."; echo "SKIP_BUILD=${{ inputs.allow_skipping_build || 'true' }}" >> $GITHUB_ENV; exit 0; }
+          git push || { echo "No changes to push, skipping build process.";  echo "SKIP_BUILD=${{ inputs.allow_skipping_build || 'true' }}" >> $GITHUB_ENV; exit 0; }
           python -m poetry run cz -nr 21,16,7 bump --yes
           git push && git push --tags
 
