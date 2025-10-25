@@ -76,7 +76,8 @@ def build_docs() -> None:
 @click.command(
     help="Build a project manifest and compiled package that can be pulled from outside apps."
 )
-def build_manifest() -> None:
+@click.option("--date", required=False, default=Constants.DATE_NOW)
+def build_manifest(date: str) -> None:
     """Generates a manifest of all symbols in the repository and compiles all symbols into
     a zip that can be pulled from outside apps."""
     all_rarities = {str(v): k for k, v in RarityNameMap.items()}
@@ -91,9 +92,7 @@ def build_manifest() -> None:
 
     # Generate manifest data
     manifest: Manifest = Manifest(
-        meta=ManifestMeta(
-            date=Constants.DATE_NOW, version=Constants.VERSION_FULL, uri=URI.RELEASES
-        ),
+        meta=ManifestMeta(date=date, version=Constants.VERSION_FULL, uri=URI.RELEASES),
         set=ManifestSet(
             aliases=SetData.ALIAS.copy(),
             routes=SetData.ROUTES.copy(),
@@ -155,11 +154,12 @@ def build_optimized(npm_command: str | None = None) -> None:
 @click.command(
     help="Build docs, manifest, and any other relevant resources used by the repository."
 )
+@click.option("--date", required=False, default=Constants.DATE_NOW)
 @click.pass_context
-def build_all(ctx: click.Context) -> None:
+def build_all(ctx: click.Context, date: str) -> None:
     """Generate all resources used by the repository."""
     ctx.invoke(build_optimized)
-    ctx.invoke(build_manifest)
+    ctx.invoke(build_manifest, date=date)
     ctx.invoke(build_docs)
 
 

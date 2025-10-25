@@ -54,10 +54,17 @@ jobs:
           python -m poetry update
           npm install
 
+      - name: Generate Release Tag
+        id: generate_tag
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
+          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
+
       - name: Build Project and Commit Changes
         run: |
           git pull --tags
-          python -m poetry run python main.py build .
+          python -m poetry run python main.py build . --date=${NOW_PATH}
           git add .
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
@@ -65,13 +72,6 @@ jobs:
           git push || { echo "No changes to push, skipping build process.";  echo "SKIP_BUILD=${{ inputs.allow_skipping_build || 'true' }}" >> $GITHUB_ENV; exit 0; }
           python -m poetry run cz -nr 21,16,7 bump --yes
           git push && git push --tags
-
-      - name: Generate Release Tag
-        id: generate_tag
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        run: |
-          echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
-          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
