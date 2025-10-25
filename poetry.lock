@@ -585,17 +585,17 @@ bs4 = "^0.0.2"
 limits = "^5.6.0"
 loguru = "^0.7.3"
 omnitils = {git = "https://github.com/pappnu/omnitils.git", branch = "dev"}
-pydantic = ">=2.11.10"
+pydantic = ">=2.12.3"
 PyYAML = ">=6.0.3"
 requests = "^2.32.5"
-tomli = ">=2.2.1"
+tomli = ">=2.3.0"
 tomlkit = ">=0.13.3"
 
 [package.source]
 type = "git"
 url = "https://github.com/pappnu/hexproof.git"
 reference = "dev"
-resolved_reference = "34958ae70d675e09a30f8c82cda2877a0e453e8d"
+resolved_reference = "fc281f1d767651322ff271d2ccb72251bd70e19c"
 
 [[package]]
 name = "idna"
