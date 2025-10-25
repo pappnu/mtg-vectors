@@ -1,15 +1,13 @@
 """
 * Utils for Fetching and Processing 'Set' Data
 """
-# Standard Library Imports
+
 import os
 from functools import cache
 from pathlib import Path
 
-# Third Party Imports
 import requests
 
-# Local Imports
 from src.constants import Paths, WMData
 
 """
@@ -20,7 +18,11 @@ from src.constants import Paths, WMData
 @cache
 def get_all_watermarks() -> list[str]:
     """Returns a list of all watermarks found in Scryfall's watermarks catalog."""
-    return requests.get('https://api.scryfall.com/catalog/watermarks').json().get('data', [])
+    return (
+        requests.get("https://api.scryfall.com/catalog/watermarks")
+        .json()
+        .get("data", [])
+    )
 
 
 @cache
@@ -28,7 +30,8 @@ def get_local_watermarks() -> list[str]:
     """Returns a list of all watermark names accounted for in this repository."""
     return [
         Path(Paths.WATERMARK, n).stem.lower()
-        for n in os.listdir(Paths.WATERMARK) if n.endswith('.svg')
+        for n in os.listdir(Paths.WATERMARK)
+        if n.endswith(".svg")
     ]
 
 

@@ -1,16 +1,14 @@
 """
 * Utils for Fetching and Processing 'Set' Data
 """
-# Local Imports
+
 import os
 from functools import cache
 
-# Third Party Imports
 from hexproof import scryfall as Scryfall
 
-# Local Imports
 from src.constants import Paths, SetData
-from src.schema import SetDetails, Icon
+from src.schema import Icon, SetDetails
 
 """
 * Icon Routing
@@ -69,11 +67,11 @@ def get_all_sets() -> list[SetDetails]:
             type=n.set_type,
             parent=n.parent_set_code.lower() if n.parent_set_code else None,
             icon=get_set_icon(
-                set_code=n.code,
-                icon=Scryfall.get_icon_code(
-                    url=n.icon_svg_uri)),
-            name=n.name
-        ) for n in Scryfall.get_set_list()
+                set_code=n.code, icon=Scryfall.get_icon_code(url=n.icon_svg_uri)
+            ),
+            name=n.name,
+        )
+        for n in Scryfall.get_set_list()
     ]
 
 
@@ -81,9 +79,8 @@ def get_all_sets() -> list[SetDetails]:
 def get_all_icons() -> list[Icon]:
     """Returns a (non-repeating) list of all icons found on Scryfall."""
     return [
-        Icon.build(icon=k, set_code=v) for k, v in {
-            n.icon.upper(): n.code.upper() for n in get_all_sets()
-        }.items()
+        Icon.build(icon=k, set_code=v)
+        for k, v in {n.icon.upper(): n.code.upper() for n in get_all_sets()}.items()
     ]
 
 
@@ -113,19 +110,17 @@ def check_icon_recognized(icon: str) -> bool:
 def get_unused_icons() -> list[str]:
     """Get a list of icons in the repository not used by any known Scryfall set."""
     return list(
-        n for n in os.listdir(Paths.SET)
-        if n not in get_all_icon_codes()
-        and n not in SetData.IGNORED
+        n
+        for n in os.listdir(Paths.SET)
+        if n not in get_all_icon_codes() and n not in SetData.IGNORED
     )
 
 
 def get_missing_icons() -> list[Icon]:
     """Returns a list of Icon objects not found in the repository catalog."""
-    return Icon.get_missing(
-        items=get_all_icons())
+    return Icon.get_missing(items=get_all_icons())
 
 
 def get_missing_rarities() -> list[Icon]:
     """Returns a list of Icon objects which are missing one or more required rarities."""
-    return Icon.get_missing_rarities(
-        items=get_all_icons())
+    return Icon.get_missing_rarities(items=get_all_icons())

@@ -1,19 +1,16 @@
 """
 * Type Definitions Module
 """
-# Standard Library Imports
-from pathlib import Path
-from typing import Optional
 
-# Third Party Imports
+from pathlib import Path
+
 import yarl
 from omnitils.schema import Schema
 
-# Local Imports
 from src.constants import Paths
 
 # Rarities to test for
-REQUIRED_RARITIES: set[str] = {'C', 'U', 'R', 'M', 'T', 'WM'}
+REQUIRED_RARITIES: set[str] = {"C", "U", "R", "M", "T", "WM"}
 
 """
 * Set Schemas
@@ -22,8 +19,9 @@ REQUIRED_RARITIES: set[str] = {'C', 'U', 'R', 'M', 'T', 'WM'}
 
 class SetDetails(Schema):
     """Set details dictionary."""
+
     type: str
-    parent: Optional[str] = None
+    parent: str | None = None
     icon: str
     name: str
     code: str
@@ -36,6 +34,7 @@ class SetDetails(Schema):
 
 class Icon(Schema):
     """An icon missing from the catalog."""
+
     icon: str
     set_code: str
     path: Path
@@ -47,7 +46,7 @@ class Icon(Schema):
     missing_str: str | None
 
     @classmethod
-    def build(cls, icon: str = '', set_code: str = '') -> 'Icon':
+    def build(cls, icon: str = "", set_code: str = "") -> Icon:
         """Build and return a new Icon object.
 
         Args:
@@ -61,8 +60,9 @@ class Icon(Schema):
         # Build directory path and discover missing rarities
         _path = Path(Paths.SET, icon.upper())
         _missing = sorted(
-            n for n in REQUIRED_RARITIES
-            if not Path(_path, n).with_suffix('.svg').is_file()
+            n
+            for n in REQUIRED_RARITIES
+            if not Path(_path, n).with_suffix(".svg").is_file()
         )
 
         # Return generated Icon object
@@ -70,16 +70,20 @@ class Icon(Schema):
             icon=icon,
             set_code=set_code,
             path=_path,
-            set_url=str(yarl.URL('https://scryfall.com/sets') / set_code.lower()),
-            svg_url=str((yarl.URL('https://svgs.scryfall.io/sets') / icon.lower()).with_suffix('.svg')),
+            set_url=str(yarl.URL("https://scryfall.com/sets") / set_code.lower()),
+            svg_url=str(
+                (yarl.URL("https://svgs.scryfall.io/sets") / icon.lower()).with_suffix(
+                    ".svg"
+                )
+            ),
             exists=_path.is_dir(),
             missing=_missing,
             found=[n for n in REQUIRED_RARITIES if n not in _missing],
-            missing_str=', '.join(_missing) if _missing else None
+            missing_str=", ".join(_missing) if _missing else None,
         )
 
     @classmethod
-    def get_missing(cls, items: list['Icon']) -> list['Icon']:
+    def get_missing(cls, items: list[Icon]) -> list[Icon]:
         """Takes in a list of Icon objects and returns a list of Icon objects which are not found
             in the repository catalog, sorted alphabetically.
 
@@ -93,7 +97,7 @@ class Icon(Schema):
         return sorted(_items, key=lambda n: n.icon)
 
     @classmethod
-    def get_missing_rarities(cls, items: list['Icon']) -> list['Icon']:
+    def get_missing_rarities(cls, items: list[Icon]) -> list[Icon]:
         """Takes in a list of Icon objects and returns a list of Icon objects which are missing
             required rarities, sorted primarily by most rarities missing to least, sorted secondarily
             in alphabetical order.
@@ -121,6 +125,7 @@ class Icon(Schema):
 
 class ManifestMeta(Schema):
     """Manifest metadata."""
+
     date: str
     version: str
     uri: str
@@ -128,6 +133,7 @@ class ManifestMeta(Schema):
 
 class ManifestSet(Schema):
     """Set Manifest dict."""
+
     aliases: dict[str, str]
     routes: dict[str, str]
     rarities: dict[str, str]
@@ -136,12 +142,14 @@ class ManifestSet(Schema):
 
 class ManifestWatermark(Schema):
     """Watermark Manifest dict."""
+
     routes: dict[str, str]
     symbols: list[str]
 
 
 class Manifest(Schema):
     """Full Manifest dict."""
+
     meta: ManifestMeta
     set: ManifestSet
     watermark: ManifestWatermark
