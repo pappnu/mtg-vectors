@@ -1,46 +1,45 @@
-name: Build Daily Release
+name: Build Release
 
 on:
   workflow_dispatch:
   schedule:
     # Scheduled Daily (Midnight)
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
 
 env:
   SKIP_BUILD: false
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checkout Repository
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      # Install Inkscape, XVFB, GitHub CLI
-      - name: Install Inkscape
+      - name: Install Inkscape, XVFB and GitHub CLI
         run: |
           sudo add-apt-repository ppa:inkscape.dev/stable
           sudo apt-get install -y inkscape xvfb gh
 
-      # Use Python 3.12
-      - name: Set up Python 3.12
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.14"
 
-      # Install Node, NPM and SVGO
       - name: Install Node / NPM
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: "latest"
+          cache: "npm"
 
-      # Install Pipx, Poetry and dependencies
-      - name: Install Poetry using pipx
+      - name: Install Pipx, Poetry and dependencies
         run: |
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
@@ -49,7 +48,6 @@ jobs:
           poetry install
           npm install
 
-      # Build Project and Commit Changes
       - name: Build Project and Commit Changes
         run: |
           git pull --tags
@@ -62,63 +60,24 @@ jobs:
           poetry run cz -nr 21,16,7 bump --yes
           git push && git push --tags
 
-      # Generate release tag
       - name: Generate Release Tag
         id: generate_tag
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          VERSION=$(poetry version -s)
-          DATE=$(date +%Y%m%d)
-          DATE_FMT=$(date +'%Y-%m-%d')
-          echo "PROJECT_VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "DATE_FMT=${DATE_FMT}" >> $GITHUB_ENV
-          echo "VERSION_TAG=v${VERSION}+${DATE}" >> $GITHUB_ENV
+          echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
+          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%S')" >> $GITHUB_ENV
 
-      # Publish Release
-      - name: Publish Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Release
+        uses: softprops/action-gh-release@v2
         if: ${{ env.SKIP_BUILD != 'true' }}
         with:
-          tag_name: ${{ env.VERSION_TAG }}
-          release_name: ${{ env.VERSION_TAG }}
-          body: "## Daily Build (${{ env.DATE_FMT }})
-            
-            This is an automated daily release that ingests changes to the SVG catalog and live Scryfall data. A new
-            release does not mean the codebase has changed. The version tag for automated releases and the manifest file 
-            is comprised of the codebase version + the day this release was generated in `YYYYMMDD` format.
-            
-            ### Release Files
-            
-            Two packages are provided, the `all` package contains both the original SVG files and the optimized 
-            versions. The `optimized` package only contains the optimized SVG files. Both packages include a 
-            `manifest.json` file which provides helpful compatibility and routing data. Generally, the optimized 
-            SVG files are recommended for production use, typically saving about 30-50% in filesize and providing
-            improved formatting compatibility accross use cases.
-            
-            ### Changelog
-            
-            See the automated [changelog](https://github.com/Investigamer/mtg-vectors/blob/main/CHANGELOG.md) to view 
-            the full history of the codebase."
-          draft: false
-          prerelease: false
+          name: ${{ env.NOW }}
+          files: mtg-vectors.optimized.zip
+          tag_name: ${{ env.NOW_PATH }}
+          fail_on_unmatched_files: true
+          body: "This is an automated release that ingests changes to the SVG catalog and live Scryfall data."
 
-      # Upload Release Package (All)
-      - name: Upload Release Package (All)
-        uses: actions/upload-release-asset@v1
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: mtg-vectors.all.zip
-          asset_name: mtg-vectors.all.zip
-          asset_content_type: application/zip
-
-      # Upload Release Package (Optimized)
-      - name: Upload Release Package (Optimized)
-        uses: actions/upload-release-asset@v1
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: mtg-vectors.optimized.zip
-          asset_name: mtg-vectors.optimized.zip
-          asset_content_type: application/zip
+      - name: Delete old releases
+        run: gh release list --json tagName --jq '.[] | .tagName' | tail -n+7 | xargs -r -n 1 gh release delete --yes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
