@@ -5,7 +5,7 @@
 from pathlib import Path
 
 import yarl
-from omnitils.schema import Schema
+from pydantic import BaseModel
 
 from src.constants import Paths
 
@@ -17,7 +17,7 @@ REQUIRED_RARITIES: set[str] = {"C", "U", "R", "M", "T", "WM"}
 """
 
 
-class SetDetails(Schema):
+class SetDetails(BaseModel):
     """Set details dictionary."""
 
     type: str
@@ -32,7 +32,7 @@ class SetDetails(Schema):
 """
 
 
-class Icon(Schema):
+class Icon(BaseModel):
     """An icon missing from the catalog."""
 
     icon: str
@@ -123,7 +123,7 @@ class Icon(Schema):
 """
 
 
-class ManifestMeta(Schema):
+class ManifestMeta(BaseModel):
     """Manifest metadata."""
 
     date: str
@@ -131,7 +131,7 @@ class ManifestMeta(Schema):
     uri: str
 
 
-class ManifestSet(Schema):
+class ManifestSet(BaseModel):
     """Set Manifest dict."""
 
     aliases: dict[str, str]
@@ -140,14 +140,14 @@ class ManifestSet(Schema):
     symbols: dict[str, list[str]]
 
 
-class ManifestWatermark(Schema):
+class ManifestWatermark(BaseModel):
     """Watermark Manifest dict."""
 
     routes: dict[str, str]
     symbols: list[str]
 
 
-class Manifest(Schema):
+class Manifest(BaseModel):
     """Full Manifest dict."""
 
     meta: ManifestMeta
