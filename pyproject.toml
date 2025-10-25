@@ -20,9 +20,6 @@ click = "^8.3.0"
 omnitils = { git = "https://github.com/pappnu/omnitils.git", branch = "dev" }
 hexproof = { git = "https://github.com/pappnu/hexproof.git", branch = "dev" }
 
-[tool.poetry.scripts]
-vectors = 'src.commands:AppCLI'
-
 [tool.commitizen]
 version_provider = "pep621"
 encoding = "utf-8"

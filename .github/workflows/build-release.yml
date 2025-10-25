@@ -5,8 +5,11 @@ on:
     inputs:
       allow_skipping_build:
         description: "Allow skipping build"
-        type: boolean
-        default: false
+        type: choice
+        default: "false"
+        options:
+          - "true"
+          - "false"
   schedule:
     # Scheduled Daily (Midnight)
     - cron: "0 0 * * *"
@@ -54,7 +57,7 @@ jobs:
       - name: Build Project and Commit Changes
         run: |
           git pull --tags
-          python -m poetry run vectors build .
+          python -m poetry run python ./src/cli.py build .
           git add .
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
