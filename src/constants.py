@@ -2,11 +2,10 @@
 * App Constants
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-# Third Party Utils
 from omnitils.files import load_data_file
 
 """
@@ -50,10 +49,10 @@ class URI:
 class Constants:
     """Global project details."""
 
-    DATE: date = datetime.now()
-    DATE_NOW: str = DATE.strftime("%Y-%m-%dT%H%M%SZ")
+    DATE: date = datetime.now(tz=UTC)
+    DATE_NOW: str = DATE.strftime("%Y-%m-%dT%H:%M:%SZ")
     CONFIG: dict[str, Any] = load_data_file(Paths.CONFIG)
-    VERSION: str = CONFIG.get("tool", {}).get("poetry", {}).get("version", "1.0.0")
+    VERSION: str = CONFIG.get("project", {}).get("version", "1.0.0")
     VERSION_FULL: str = f"{VERSION}+{DATE.strftime('%Y%m%d')}"
 
 
