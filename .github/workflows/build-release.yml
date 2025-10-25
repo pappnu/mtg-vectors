@@ -63,7 +63,7 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
-          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%S')" >> $GITHUB_ENV
+          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
