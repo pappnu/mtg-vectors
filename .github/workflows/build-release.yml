@@ -57,7 +57,7 @@ jobs:
       - name: Build Project and Commit Changes
         run: |
           git pull --tags
-          python -m poetry run python ./src/cli.py build .
+          python -m poetry run python main.py build .
           git add .
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
