@@ -51,7 +51,7 @@ class Constants:
     """Global project details."""
 
     DATE: date = datetime.now()
-    DATE_NOW: str = DATE.strftime("%Y-%m-%d")
+    DATE_NOW: str = DATE.strftime("%Y-%m-%dT%H%M%SZ")
     CONFIG: dict[str, Any] = load_data_file(Paths.CONFIG)
     VERSION: str = CONFIG.get("tool", {}).get("poetry", {}).get("version", "1.0.0")
     VERSION_FULL: str = f"{VERSION}+{DATE.strftime('%Y%m%d')}"
