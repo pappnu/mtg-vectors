@@ -1,38 +1,45 @@
-[tool.poetry]
+[project]
 name = "mtg-vectors"
-version = "0.7.5"
+version = "0.7.5.dev0"
 description = "A repository of Magic the Gathering SVG (vector) files for set, watermark, and miscellaneous symbols."
-authors = ["Investigamer <freethoughtleft@gmail.com>"]
+authors = [{ name = "Investigamer", email = "freethoughtleft@gmail.com" }]
 license = "MPL-2.0"
 readme = "README.md"
+requires-python = ">=3.14,<4.0"
 
 [[tool.poetry.packages]]
 include = 'src'
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-requests = "^2.31.0"
-yarl = "^1.9.3"
-pyyaml = "^6.0.1"
-commitizen = "^3.12.0"
-typing-extensions = "^4.8.0"
-setuptools = "^70.0.0"
-click = "^8.1.7"
-omnitils = "^1.4.6"
-hexproof = "^0.3.7"
+requests = "^2.32.5"
+yarl = "^1.22.0"
+pyyaml = "^6.0.3"
+commitizen = "^4.9.1"
+setuptools = "^80.9.0"
+click = "^8.3.0"
+omnitils = { git = "https://github.com/pappnu/omnitils.git", branch = "dev" }
+hexproof = { git = "https://github.com/pappnu/hexproof.git", branch = "dev" }
 
 [tool.poetry.scripts]
 vectors = 'src.commands:AppCLI'
 
 [tool.commitizen]
-version = "0.7.5"
+version_provider = "pep621"
+encoding = "utf-8"
 changelog_start_rev = "0.2.1"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version_files = [
-    "pyproject.toml:version"
-]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+extend-select = [
+    "I",  # isort
+    "UP", # pyupgrade
+]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "information"
