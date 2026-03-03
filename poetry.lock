@@ -1024,7 +1024,7 @@ yarl = "^1.22.0"
 type = "git"
 url = "https://github.com/pappnu/omnitils.git"
 reference = "dev"
-resolved_reference = "3c9acacc479067b092354c8ac345f24d24ec33d1"
+resolved_reference = "dab468c228d746a1832f421a092d902b4a3f5fb8"
 
 [[package]]
 name = "packaging"
