@@ -5,6 +5,7 @@
 # Missing Watermarks
 | Symbol Name | Links |
 | ----------- | ----- |
+| Fracture | [Cards](https://api.scryfall.com/cards/search?q=watermark:fracture) |
 | Magicfest | [Cards](https://api.scryfall.com/cards/search?q=watermark:magicfest) |
 | Trumpkatsumai | [Cards](https://api.scryfall.com/cards/search?q=watermark:trumpkatsumai) |
 
