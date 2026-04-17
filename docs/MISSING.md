@@ -16,4 +16,4 @@
 | PDRC | M, R, T, U | [SVG](https://svgs.scryfall.io/sets/pdrc.svg), [Cards](https://scryfall.com/sets/pdrc) |
 | J25 | T | [SVG](https://svgs.scryfall.io/sets/j25.svg), [Cards](https://scryfall.com/sets/fj25) |
 | SOC | T | [SVG](https://svgs.scryfall.io/sets/soc.svg), [Cards](https://scryfall.com/sets/tsoc) |
-| SOS | T | [SVG](https://svgs.scryfall.io/sets/sos.svg), [Cards](https://scryfall.com/sets/sos) |
+| SOS | T | [SVG](https://svgs.scryfall.io/sets/sos.svg), [Cards](https://scryfall.com/sets/tsos) |
