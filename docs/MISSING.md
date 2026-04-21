@@ -1,6 +1,8 @@
 # Missing Set Symbols
 | Symbol Code | Links |
 | ----------- | ----- |
+| MAR | [SVG](https://svgs.scryfall.io/sets/mar.svg), [Cards](https://scryfall.com/sets/mar) |
+| Y26 | [SVG](https://svgs.scryfall.io/sets/y26.svg), [Cards](https://scryfall.com/sets/yecl) |
 
 # Missing Watermarks
 | Symbol Name | Links |
@@ -14,6 +16,6 @@
 | ----------- | ---------------- | ----- |
 | PGRU | M, R, T, U, WM | [SVG](https://svgs.scryfall.io/sets/pgru.svg), [Cards](https://scryfall.com/sets/pgru) |
 | PDRC | M, R, T, U | [SVG](https://svgs.scryfall.io/sets/pdrc.svg), [Cards](https://scryfall.com/sets/pdrc) |
-| J25 | T | [SVG](https://svgs.scryfall.io/sets/j25.svg), [Cards](https://scryfall.com/sets/fj25) |
-| SOC | T | [SVG](https://svgs.scryfall.io/sets/soc.svg), [Cards](https://scryfall.com/sets/tsoc) |
+| J25 | T | [SVG](https://svgs.scryfall.io/sets/j25.svg), [Cards](https://scryfall.com/sets/j25) |
+| SOC | T | [SVG](https://svgs.scryfall.io/sets/soc.svg), [Cards](https://scryfall.com/sets/soc) |
 | SOS | T | [SVG](https://svgs.scryfall.io/sets/sos.svg), [Cards](https://scryfall.com/sets/sos) |
