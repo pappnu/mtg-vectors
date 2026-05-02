@@ -5,7 +5,8 @@
 import os
 from functools import cache
 
-from hexproof import scryfall as Scryfall
+# Third Party Imports
+from hexproof.providers import scryfall as Scryfall
 
 from src.constants import Paths, SetData
 from src.schema import Icon, SetDetails

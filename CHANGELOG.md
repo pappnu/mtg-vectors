@@ -1,3 +1,25 @@
+## v0.8.0 (2026-05-01)
+
+### Feat
+
+- **svg/watermark**: Add fracture watermark.
+
+### Fix
+
+- **eos**: Fix EOS timeshifted symbol (renamed)
+
+## v0.7.7 (2026-01-24)
+
+### Fix
+
+- **cli**: Use correct Scryfall URL mapping
+
+## v0.7.6 (2026-01-23)
+
+### Fix
+
+- **uv**: Migrate from poetry -> uv, support updated `hexproof` module
+
 ## v0.7.5 (2024-08-30)
 
 ### Fix

@@ -1,42 +1,45 @@
 [project]
 name = "mtg-vectors"
-version = "0.7.5.dev0"
+version = "0.8.0"
 description = "A repository of Magic the Gathering SVG (vector) files for set, watermark, and miscellaneous symbols."
-authors = [{ name = "Investigamer", email = "freethoughtleft@gmail.com" }]
+authors = [{ name = "Investigamer", email = "hexproofsystems@gmail.com" }]
 license = "MPL-2.0"
 readme = "README.md"
-requires-python = ">=3.14,<4.0"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "requests>=2.31,<3",
+    "yarl>=1.9.3,<2",
+    "pyyaml>=6.0.1,<7",
+    "typing-extensions>=4.8,<5",
+    "setuptools>=70,<79",
+    "click>=8.1.7,<9",
+    "omnitils~=1.4.6",
+    "hexproof~=0.4.0",
+]
 
-[[tool.poetry.packages]]
-include = 'src'
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.9,<2",
+    "pytest>=8.1,<9",
+    "commitizen>=3.20,<4"
+]
 
-[tool.poetry.dependencies]
-requests = "^2.32.5"
-yarl = "^1.22.0"
-pyyaml = "^6.0.3"
-commitizen = "^4.9.1"
-setuptools = "^80.9.0"
-click = "^8.3.0"
-omnitils = { git = "https://github.com/pappnu/omnitils.git", branch = "dev" }
-hexproof = { git = "https://github.com/pappnu/hexproof.git", branch = "dev" }
+[project.scripts]
+vectors = 'src.commands:AppCLI'
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [tool.commitizen]
-version_provider = "pep621"
+version = "0.8.0"
 encoding = "utf-8"
 changelog_start_rev = "0.2.1"
 tag_format = "v$version"
 update_changelog_on_bump = true
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.ruff.lint]
-extend-select = [
-    "I",  # isort
-    "UP", # pyupgrade
+version_files = [
+    "pyproject.toml:version"
 ]
-
-[tool.pyright]
-typeCheckingMode = "strict"
-reportMissingTypeStubs = "information"

@@ -7,8 +7,8 @@ from pathlib import Path
 from time import perf_counter
 
 import click
-from hexproof.scryfall import ScryURL
-from hexproof.vectors import RarityNameMap
+from hexproof.providers.scryfall import ScryURL
+from hexproof.providers.vectors import RarityNameMap
 from omnitils.files import dump_data_file
 from omnitils.logs import logger
 
@@ -56,8 +56,8 @@ def build_docs() -> None:
         file.write("| ----------- | ----- |\n")
         for wm in missing_wm:
             # Format URL queries
-            url = ScryURL.API.Cards.Search.with_query({"q": f"watermark:{wm.lower()}"})
-            file.write(f"| {wm.title()} | [Cards]({str(url)}) |\n")
+            url = ScryURL.API_CARDS_SEARCH.with_query({'q': f'watermark:{wm.lower()}'})
+            file.write(f'| {wm.title()} | [Cards]({str(url)}) |\n')
 
         # Write the list of missing rarities
         file.write("\n# Missing Set Symbol Rarities\n")

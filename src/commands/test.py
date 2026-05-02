@@ -3,7 +3,7 @@
 """
 
 import click
-from hexproof.scryfall import ScryURL
+from hexproof.providers.scryfall import ScryURL
 from omnitils.logs import logger
 
 from src.constants import SetData
@@ -76,7 +76,8 @@ def list_missing_watermarks() -> None:
     if watermarks := get_missing_watermarks():
         logger.info("The following watermarks are missing from the catalog:")
         for wm in watermarks:
-            url = ScryURL.API.Cards.Search.with_query({"q": f"watermark:{wm.lower()}"})
+            url = ScryURL.API_CARDS_SEARCH.with_query(
+                {'q': f'watermark:{wm.lower()}'})
             logger.warning(f"{wm} | {str(url)}")
     else:
         logger.success("All watermarks exist in the catalog!")

@@ -24,6 +24,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,10 +39,12 @@ jobs:
           sudo add-apt-repository ppa:inkscape.dev/stable
           sudo apt-get install -y inkscape xvfb gh
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Set-up Python 3.12 (uv)
+      - name: Set up uv (Python 3.12 + cache)
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.14"
+          python-version: "3.12"
+          enable-cache: true
 
       - name: Install Node / NPM
         uses: actions/setup-node@v4
@@ -47,31 +52,31 @@ jobs:
           node-version: "latest"
           cache: "npm"
 
-      - name: Install Poetry and dependencies
+      # Install deps
+      - name: Install Dependencies
         run: |
-          python -m pip install poetry
-          python -m poetry config virtualenvs.in-project true
-          python -m poetry update
-          npm install
+          uv sync --extra dev
+          uv lock
 
+      - name: Build Project and Commit Changes
+        run: |
+          git pull --tags
+          uv run vectors build .
+          git add .
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git commit -m "deps(build): Process daily updates." || { echo "No changes to commit, skipping build process."; echo "SKIP_BUILD=true" >> $GITHUB_ENV; exit 0; }
+          git push || { echo "No changes to push, skipping build process.";  echo "SKIP_BUILD=true" >> $GITHUB_ENV; exit 0; }
+          uv run cz -nr 21,16,7 bump --yes
+          git push && git push --tags
+
+      # Generate release tag
       - name: Generate Release Tag
         id: generate_tag
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
           echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
-
-      - name: Build Project and Commit Changes
-        run: |
-          git pull --tags
-          python -m poetry run python main.py build . --date=${NOW_PATH}
-          git add .
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git commit -m "deps(build): Process daily updates." || { echo "No changes to commit, skipping build process."; echo "SKIP_BUILD=${{ inputs.allow_skipping_build || 'true' }}" >> $GITHUB_ENV; exit 0; }
-          git push || { echo "No changes to push, skipping build process.";  echo "SKIP_BUILD=${{ inputs.allow_skipping_build || 'true' }}" >> $GITHUB_ENV; exit 0; }
-          python -m poetry run cz -nr 21,16,7 bump --yes
-          git push && git push --tags
 
       - name: Release
         uses: softprops/action-gh-release@v2
