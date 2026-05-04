@@ -1,43 +1,52 @@
 """
 * Commands: Scryfall Data
 """
-
-import click
+# Third Party Imports
+import typer
 from hexproof.providers.scryfall import ScryURL
 from omnitils.logs import logger
 
 from src.constants import SetData
-from src.icons import get_all_sets, get_missing_icons, get_missing_rarities
+from src.icons import get_all_sets_raw, get_missing_icons, get_missing_rarities
 from src.schema import SetDetails
 from src.watermarks import get_missing_watermarks
+
+# Typer group
+app = typer.Typer(
+    name="test",
+    help="A suite of commands for testing the project and the asset catalog."
+)
 
 """
 * Commands
 """
 
 
-@click.command(help="Lists all sets that match a provided query.")
-@click.option(
-    "-i",
-    "--icon",
-    required=False,
-    default=None,
-    help="Match a provided Scryfall icon name.",
+@app.command(
+    "sets",
+    help='Lists all sets that match a provided query.'
 )
-def list_sets_by_symbol(icon: str | None = None) -> None:
-    """Print a list of Scryfall sets that use a given SVG symbol.
+def list_sets_by_query(
+        icon: str | None = typer.Option(
+            None, '-i', "--icon",
+            help='Match a provided Scryfall icon name.'
+        )
+) -> None:
+    """Print a list of Scryfall sets that match a variety of options.
+
+    Todo:
+        Add more options.
 
     Args:
         icon: The name of an SVG icon recognized by Scryfall.
     """
-    for n in get_all_sets():
+    for n in get_all_sets_raw():
         # Check symbol match
         if icon is None or icon.lower() in n.icon.lower():
             logger.info(
                 f"[{n.code.upper():<5}| {n.icon}.svg] {n.name} "
                 f"{'' if not n.parent else f'(Parent: {n.parent.upper()})'} "
-                f"<{n.type}>"
-            )
+                f"[{n.type}]")
 
 
 """
@@ -45,7 +54,8 @@ def list_sets_by_symbol(icon: str | None = None) -> None:
 """
 
 
-@click.command(
+@app.command(
+    "icons",
     help="Lists all sets that currently don't have a matching vector symbol catalogued in this repository."
 )
 def list_missing_icons() -> None:
@@ -66,9 +76,9 @@ def list_missing_icons() -> None:
         logger.success("All rarities for catalogued icons are accounted for!")
 
 
-@click.command(
-    help="Lists all watermark names that don't have matching vector symbol catalogued in this repository."
-)
+@app.command(
+    "wm",
+    help="Lists all watermark names that don't have matching vector symbol catalogued in this repository.")
 def list_missing_watermarks() -> None:
     """List any watermarks that don't have a matching vector symbol found in this repository."""
 
@@ -83,9 +93,11 @@ def list_missing_watermarks() -> None:
         logger.success("All watermarks exist in the catalog!")
 
 
-@click.command(help="List all SVG assets that are missing from the repository.")
-@click.pass_context
-def list_missing_all(ctx: click.Context) -> None:
+@app.command(
+    "missing",
+    help='List all SVG assets that are missing from the repository.'
+)
+def list_missing_all(ctx: typer.Context) -> None:
     """List all SVG assets (set, watermarks, etc) that are present in Scryfall data but missing from
     this repository.
     """
@@ -93,22 +105,21 @@ def list_missing_all(ctx: click.Context) -> None:
     ctx.invoke(list_missing_watermarks)
 
 
-"""
-* Test Data Files
-"""
-
-
-@click.command
+@app.command(
+    "routes",
+    help="Lists all sets that don't have a matching vector symbol catalogued in this repository."
+)
 def test_routes():
     """Checks defined routes."""
-    sets: dict[str, SetDetails] = get_all_sets()
+    sets: list[SetDetails] = get_all_sets_raw()
+    set_map = {n.code.lower(): n for n in sets}
     missing = []
     for set_code, icon_code in SetData.ROUTES.items():
-        _set = sets.get(set_code.lower())
+        _set = set_map.get(set_code.lower())
         if _set is None:
             missing.append(f"[MISSING] {set_code} (Not found in Scryfall data)")
             continue
-        _icon = _set.icon
+        _icon = _set.icon.upper()
         if icon_code.upper() != _icon:
             logger.info(f"[ROUTED] {set_code}: {icon_code} (From: {_icon})")
             continue
@@ -117,42 +128,3 @@ def test_routes():
             f"[NORMAL] {set_code}: {_icon} (Scryfall now matches this route)"
         )
     [logger.error(m) for m in missing]
-
-
-"""
-* Command Groups
-"""
-
-
-@click.group(
-    chain=True,
-    commands={
-        ".": list_missing_all,
-        "watermarks": list_missing_watermarks,
-        "icons": list_missing_icons,
-    },
-    help="A suite of commands for testing for missing assets in the SVG catalog.",
-)
-def test_missing_cli():
-    """CLI interface for testing for missing SVG assets."""
-    pass
-
-
-@click.group(
-    chain=True,
-    commands={"sets": list_sets_by_symbol},
-    help="A suite of commands for testing the retrieval of bulk data.",
-)
-def test_get_cli():
-    """CLI interface for returning bulk data."""
-    pass
-
-
-@click.group(
-    chain=True,
-    commands={"missing": test_missing_cli, "get": test_get_cli, "routes": test_routes},
-    help="A suite of commands for testing the project and the asset catalog.",
-)
-def test_cli():
-    """CLI interface for running project tests."""
-    pass

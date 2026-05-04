@@ -6,7 +6,8 @@ import os
 from pathlib import Path
 from time import perf_counter
 
-import click
+# Third Party Imports
+import typer
 from hexproof.providers.scryfall import ScryURL
 from hexproof.providers.vectors import RarityNameMap
 from omnitils.files import dump_data_file
@@ -24,14 +25,21 @@ from src.utils import (
 )
 from src.watermarks import get_local_watermarks, get_missing_watermarks
 
+# Typer group
+app = typer.Typer(
+    name="build",
+    help="A suite of commands for building docs, manifest, release packages, etc."
+)
+
 """
 * Commands
 """
 
 
-@click.command(
+@app.command(
+    "docs",
     help="Build a `MISSING.md` markdown file which tracks all vector assets currently "
-    "missing from the catalogue, based on current scryfall data."
+         "missing from the catalogue, based on current scryfall data."
 )
 def build_docs() -> None:
     """Generates the 'MISSING.md' file used in this repository."""
@@ -46,9 +54,7 @@ def build_docs() -> None:
         file.write("| Symbol Code | Links |\n")
         file.write("| ----------- | ----- |\n")
         for sym in icons:
-            file.write(
-                f"| {sym.icon} | [SVG]({sym.svg_url}), [Cards]({sym.set_url}) |\n"
-            )
+            file.write(f"| {sym.icon} | [SVG]({sym.svg_url}), [Cards]({sym.set_url}) |\n")
 
         # Write the list of missing watermarks
         file.write("\n# Missing Watermarks\n")
@@ -56,28 +62,26 @@ def build_docs() -> None:
         file.write("| ----------- | ----- |\n")
         for wm in missing_wm:
             # Format URL queries
-            url = ScryURL.API_CARDS_SEARCH.with_query({'q': f'watermark:{wm.lower()}'})
-            file.write(f'| {wm.title()} | [Cards]({str(url)}) |\n')
+            url = ScryURL.API_CARDS_SEARCH.with_query({"q": f"watermark:{wm.lower()}"})
+            file.write(f"| {wm.title()} | [Cards]({str(url)}) |\n")
 
         # Write the list of missing rarities
         file.write("\n# Missing Set Symbol Rarities\n")
         file.write("| Symbol Name | Rarities Missing | Links |\n")
         file.write("| ----------- | ---------------- | ----- |\n")
         for sym in rarities:
-            file.write(
-                f"| {sym.icon.upper()} | {sym.missing_str} | "
-                f"[SVG]({sym.svg_url}), [Cards]({sym.set_url}) |\n"
-            )
+            file.write(f"| {sym.icon.upper()} | {sym.missing_str} | "
+                       f"[SVG]({sym.svg_url}), [Cards]({sym.set_url}) |\n")
 
     # Log success
     logger.success("Built ~/docs/MISSING.md file!")
 
 
-@click.command(
+@app.command(
+    "manifest",
     help="Build a project manifest and compiled package that can be pulled from outside apps."
 )
-@click.option("--date", required=False, default=Constants.DATE_NOW)
-def build_manifest(date: str) -> None:
+def build_manifest() -> None:
     """Generates a manifest of all symbols in the repository and compiles all symbols into
     a zip that can be pulled from outside apps."""
     all_rarities = {str(v): k for k, v in RarityNameMap.items()}
@@ -115,13 +119,19 @@ def build_manifest(date: str) -> None:
     logger.success("Built manifest and package!")
 
 
-@click.command(help="Build optimized SVG catalog.")
-@click.argument("npm_command", required=False, default=None)
-def build_optimized(npm_command: str | None = None) -> None:
+@app.command(
+    "optimized",
+    help="Build optimized SVG catalog."
+)
+def build_optimized(
+    npm_command: str | None = typer.Argument(
+        None, help="The npm command to run for optimization."
+    )
+) -> None:
     """Generate optimized SVG directories."""
 
     # Get npm command if not provided
-    npm_command = npm_command or get_npm_command()
+    _command: str = npm_command or get_npm_command()
 
     # Gather optimization jobs
     dirs = [
@@ -132,7 +142,7 @@ def build_optimized(npm_command: str | None = None) -> None:
     # Pre-process SVGs with SVGO
     logger.info("Processing: SVGO Normalization ...")
     start = perf_counter()
-    _ = ([run_svgo_batch(src=x, dst=y, npm_command=npm_command) for x, y in dirs],)
+    _ = [run_svgo_batch(src=x, dst=y, npm_command=_command) for x, y in dirs],
     logger.success(f"Completed in {perf_counter() - start:.2f} seconds!")
 
     # Run Inkscape commands
@@ -146,38 +156,17 @@ def build_optimized(npm_command: str | None = None) -> None:
     # Add final post-process step with SVGO
     logger.info("Processing: SVGO Optimization ...")
     start = perf_counter()
-    _ = ([run_svgo_batch(src=n, dst=n, npm_command=npm_command) for _, n in dirs],)
+    _ = [run_svgo_batch(src=n, dst=n, npm_command=_command) for _, n in dirs],
     logger.success(f"Completed in {perf_counter() - start:.2f} seconds!")
     logger.success("All SVG jobs complete!")
 
 
-@click.command(
-    help="Build docs, manifest, and any other relevant resources used by the repository."
+@app.command(
+    ".",
+    help="Build docs, manifest, and any other relevant resources used by the repository.",
 )
-@click.option("--date", required=False, default=Constants.DATE_NOW)
-@click.pass_context
-def build_all(ctx: click.Context, date: str) -> None:
+def build_all(ctx: typer.Context) -> None:
     """Generate all resources used by the repository."""
-    ctx.invoke(build_optimized)
-    ctx.invoke(build_manifest, date=date)
+    ctx.invoke(build_optimized, None)
+    ctx.invoke(build_manifest)
     ctx.invoke(build_docs)
-
-
-"""
-* Command Groups
-"""
-
-
-@click.group(
-    chain=True,
-    commands={
-        ".": build_all,
-        "docs": build_docs,
-        "manifest": build_manifest,
-        "optimized": build_optimized,
-    },
-    help="Commands that build repository assets.",
-)
-def build_cli():
-    """Cli interface for build funcs."""
-    pass
