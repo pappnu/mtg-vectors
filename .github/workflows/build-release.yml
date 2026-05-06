@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       force_release:
-        description: "Force release even if it otherwise would be skipped. Pass 'true' to enable."
+        description: "Force release"
         required: false
-        default: ""
+        type: boolean
 
 # Environment
 env:
@@ -54,7 +54,7 @@ jobs:
 
       # Install Node, NPM and SVGO
       - name: Install Node / NPM
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 'latest'
 
@@ -80,14 +80,14 @@ jobs:
       # Generate release tag
       - name: Generate Release Tag
         id: generate_tag
-        if: ${{ env.INPUT_FORCE_RELEASE == 'true' || env.SKIP_BUILD != 'true' }}
+        if: ${{ inputs.force_release || env.SKIP_BUILD != 'true' }}
         run: |
           echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
           echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: ${{ env.INPUT_FORCE_RELEASE == 'true' || env.SKIP_BUILD != 'true' }}
+        if: ${{ inputs.force_release || env.SKIP_BUILD != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
