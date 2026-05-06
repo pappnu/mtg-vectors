@@ -77,64 +77,22 @@ jobs:
         id: generate_tag
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          VERSION=$(uv version --short)
-          DATE=$(date +%Y%m%d)
-          DATE_FMT=$(date +'%Y-%m-%d')
-          echo "PROJECT_VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "DATE_FMT=${DATE_FMT}" >> $GITHUB_ENV
-          echo "VERSION_TAG=v${VERSION}+${DATE}" >> $GITHUB_ENV
-          {
-            echo "## Daily Build (${DATE_FMT})"
-            echo
-            echo "This is an automated daily release that ingests changes to the SVG catalog and live Scryfall data. A new"
-            echo "release does not mean the codebase has changed. The version tag for automated releases and the manifest file"
-            echo "is comprised of the codebase version + the day this release was generated in \`YYYYMMDD\` format."
-            echo
-            echo "### Release Files"
-            echo
-            echo "Two packages are provided, the \`all\` package contains both the original SVG files and the optimized"
-            echo "versions. The \`optimized\` package only contains the optimized SVG files. Both packages include a"
-            echo "\`manifest.json\` file which provides helpful compatibility and routing data. Generally, the optimized"
-            echo "SVG files are recommended for production use, typically saving about 30-50% in filesize and providing"
-            echo "improved formatting compatibility across use cases."
-            echo
-            echo "### Changelog"
-            echo
-            echo "$(uv run cz changelog "$VERSION" --dry-run)"
-            echo
-            echo "[See full changelog.](https://github.com/Investigamer/mtg-vectors/blob/main/CHANGELOG.md)"
-          } > RELEASE_NOTES.md
+          echo "NOW=$(date -u +'%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_ENV
+          echo "NOW_PATH=$(date -u +'%Y-%m-%dT%H%M%SZ')" >> $GITHUB_ENV
 
-      # Publish Release
-      - name: Publish Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Release
+        uses: softprops/action-gh-release@v2
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION_TAG }}
-          release_name: ${{ env.VERSION_TAG }}
-          body_path: RELEASE_NOTES.md
-          draft: false
-          prerelease: false
+          name: ${{ env.NOW }}
+          files: mtg-vectors.optimized.zip
+          tag_name: ${{ env.NOW_PATH }}
+          fail_on_unmatched_files: true
+          body: "This is an automated release that ingests changes to the SVG catalog and live Scryfall data."
 
-      # Upload Release Package (All)
-      - name: Upload Release Package (All)
-        uses: actions/upload-release-asset@v1
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: mtg-vectors.all.zip
-          asset_name: mtg-vectors.all.zip
-          asset_content_type: application/zip
-
-      # Upload Release Package (Optimized)
-      - name: Upload Release Package (Optimized)
-        uses: actions/upload-release-asset@v1
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: mtg-vectors.optimized.zip
-          asset_name: mtg-vectors.optimized.zip
-          asset_content_type: application/zip
+      - name: Delete old releases
+        run: gh release list --json tagName --jq '.[] | .tagName' | tail -n+7 | xargs -r -n 1 gh release delete --yes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
