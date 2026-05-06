@@ -13,8 +13,8 @@ dependencies = [
     "typing-extensions>=4.8,<5",
     "setuptools>=70,<79",
     "click>=8.1.7,<9",
-    "omnitils~=1.4.6",
-    "hexproof~=0.4.0",
+    "omnitils~=1.5.1",
+    "hexproof~=0.4.1",
     "typer>=0.21.1",
 ]
 
