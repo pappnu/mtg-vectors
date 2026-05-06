@@ -5,6 +5,11 @@ on:
     # Scheduled Daily (Midnight)
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      force_release:
+        description: "Force release even if it otherwise would be skipped. Pass 'true' to enable."
+        required: false
+        default: ""
 
 # Environment
 env:
@@ -82,7 +87,7 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: ${{ env.SKIP_BUILD != 'true' }}
+        if: ${{ env.INPUT_FORCE_RELEASE == 'true' || env.SKIP_BUILD != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
