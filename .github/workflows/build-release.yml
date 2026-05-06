@@ -39,11 +39,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y inkscape xvfb gh
 
-      # Set-up Python 3.12 (uv)
-      - name: Set up uv (Python 3.12 + cache)
+      # Set-up Python
+      - name: Set up python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           enable-cache: true
 
       - name: Install Node / NPM
