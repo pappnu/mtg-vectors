@@ -5,7 +5,7 @@ description = "A repository of Magic the Gathering SVG (vector) files for set, w
 authors = [{ name = "Investigamer", email = "hexproofsystems@gmail.com" }]
 license = "MPL-2.0"
 readme = "README.md"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.12,<3.15"
 dependencies = [
     "requests>=2.31,<3",
     "yarl>=1.9.3,<2",
