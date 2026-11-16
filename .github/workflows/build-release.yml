@@ -70,6 +70,11 @@ jobs:
       - name: Push Changes
         run: |
           git add .
+          changed_files="$(git diff --cached --name-only)"
+          if [[ "$changed_files" == "MISSING.md" ]]; then
+            echo "Only MISSING.md changed; skipping build process."
+            echo "SKIP_BUILD=true" >> "$GITHUB_ENV"
+          fi
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git commit -m "build(gh): Process daily updates." || { echo "No changes to commit, skipping build process."; echo "SKIP_BUILD=true" >> $GITHUB_ENV; exit 0; }
