@@ -1,9 +1,9 @@
 name: Build and Publish Release
 
 on:
-  schedule:
-    # Scheduled Daily (Midnight)
-    - cron: '0 0 * * *'
+  # schedule:
+  #   # Scheduled Daily (Midnight)
+  #   - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
       force_release:
